@@ -77,7 +77,8 @@ router.post('/signup', async (req, res) => {
 
     else {
         // console.log(result.success);
-        return res.json({ message: "Email already taken / Incorrect inputs" }).status(411);
+        // return res.json({ message: "Email already taken / Incorrect inputs" }).status(411);
+        return res.json({ message: "Incorrect inputs" }).status(411);
     }
 
 })
@@ -189,11 +190,5 @@ router.get('/bulk', async (req, res) => {
 
 
 })
-
-// // router.use(authCheck);
-
-// router.get('/test',authCheck,async(req,res)=>{
-//     res.json({"userID" : req.userId});
-// })
 
 module.exports = router;

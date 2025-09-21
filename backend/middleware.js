@@ -5,7 +5,7 @@ function authCheck(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if(!authHeader || !authHeader.startsWith("Bearer")){
-        return res.status(403).json({message:"Error"});
+        return res.status(403).json({message:"Sign in first "});
     }
     
     let authToken = req.headers['authorization'];
@@ -21,15 +21,9 @@ function authCheck(req, res, next) {
     }
 
     catch (e) {
-        return res.json({message:"Error"}.status(403));
+        return res.json({message:"Error"}).status(403);
     }
 
 }
 
 module.exports = authCheck;
-
-/*authCheck/
-
-{"token": "eyJhbGciOiJIUzI1NiJ9.Njg3ZTZjNTMyNGE5OTcxOTE1YWI4MjUz.2a1JV-SS51fU6Y_9PCeina_NULAn_ikZzoNPCFvAMwQ"}
-{"token": "eyJhbGciOiJIUzI1NiJ9.Njg3ZTZjNTMyNGE5OTcxOTE1YWI4MjUz.2a1JV-SS51fU6Y_9PCeina_NULAn_ikZzoNPCFvAMwQ"}
-*/
