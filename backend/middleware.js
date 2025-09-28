@@ -2,25 +2,29 @@ const jwt = require('jsonwebtoken');
 
 function authCheck(req, res, next) {
 
-    const authHeader = req.headers.authorization;
+    // const authHeader = req.headers.authorization;
 
-    if(!authHeader || !authHeader.startsWith("Bearer")){
-        return res.status(403).json({message:"Sign in first "});
-    }
+    // if(!authHeader || !authHeader.startsWith("Bearer")){
+    //     return res.status(403).json({message:"Sign in first "});
+    // }
     
-    let authToken = req.headers['authorization'];
-    authToken = authToken.substring(7);
-    // console.log(authToken);
+    // let authToken = req.headers['authorization'];
+    // authToken = authToken.substring(7);
+
+    const authToken = req.cookies.authToken;
+
+    
+    if (!authToken) {
+        return res.redirect('/api/v1/user/signin'); // not logged in
+    }
 
     try {
         const decodedToken = jwt.verify(authToken,process.env.JWT_SECRET);
-        // console.log(decodedToken);
         req.userId = decodedToken.userId;
-        // console.log(req.userId);
         next();
     }
-
     catch (e) {
+        console.log(err);
         return res.json({message:"Error"}).status(403);
     }
 

@@ -63,7 +63,7 @@ userSchema.methods.validatePassword = async function (candidatePassword){
     return match;
 }
 
-const accountSchma = new Schema({
+const accountSchema = new Schema({
     userId: {
         type:mongoose.Schema.Types.ObjectID, 
         required:true,
@@ -87,7 +87,7 @@ const receiptSchema = new Schema({
 })
 
 const User = mongoose.model('User',userSchema);
-const Account = mongoose.model('Account',accountSchma);
+const Account = mongoose.model('Account',accountSchema);
 const Receipt = mongoose.model('Receipt',receiptSchema);
 
 module.exports = {User,Account,Receipt};

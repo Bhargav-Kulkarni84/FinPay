@@ -8,9 +8,15 @@ const authCheck = require('../middleware');
 
 dotenv.config();
 
+router.get('/signup',async(req,res)=>{
+    res.render('signup');
+})
+
 router.post('/signup', async (req, res) => {
 
     const { userName, firstName, lastName, password } = req.body;
+
+    console.log("Inside Post Method Singup");
 
     //Do input validation 
 
@@ -61,10 +67,15 @@ router.post('/signup', async (req, res) => {
             
             await newAccount.save();
 
-            //Generate a token
-            const token = jwt.sign({ userId }, process.env.JWT_SECRET)
+            // Generate a token
+            // const token = jwt.sign({ userId }, process.env.JWT_SECRET)
             //Return the signed token
-            return res.json({ message: "User created successfully", token: token }).status(200);
+            // return res.json({ message: "User created successfully", token: token }).status(200);
+        
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET)    
+        res.cookie('authToken', token, { httpOnly: true, secure: true });
+        res.redirect('/api/v1/user/dashboard');
+
 
         }
         // If Any Error Occure send the response back.
@@ -81,6 +92,10 @@ router.post('/signup', async (req, res) => {
         return res.json({ message: "Incorrect inputs" }).status(411);
     }
 
+})
+
+router.get('/signin',async(req,res)=>{
+    res.render('signin');
 })
 
 router.post('/signin', async (req, res) => {
@@ -108,8 +123,18 @@ router.post('/signin', async (req, res) => {
 
             const passwordCheck = await existingUser.validatePassword(password);
             if (passwordCheck) {
-                const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET);
-                return res.json({ token: token });
+                // const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET);
+                // return res.json({ token: token });
+
+                const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, {expiresIn: '1d'});
+                res.cookie('authToken', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production', // only HTTPS in production
+                    maxAge: 24*60*60*1000 // 1 day
+                });
+
+                res.redirect('/api/v1/user/dashboard');
+
             }
             else {
                 return res.json({ message: "Error while logging in" });
@@ -122,6 +147,19 @@ router.post('/signin', async (req, res) => {
         return res.json({ message: "Error while logging in" });
     }
 
+})
+
+router.post('/logout',async(req,res)=>{
+    res.clearCookie('authToken');
+    res.redirect('/api/v1/user/signin');
+})
+
+router.get('/dashboard',authCheck,async(req,res)=>{
+    // const users = await User.find();
+    const users = await User.find({ _id: { $ne: req.userId } });
+    const currentAccount = await Account.findOne({ userId: req.userId });
+    const currentUserBalance = currentAccount ? currentAccount.balance : 0;
+    res.render('dashboard', { users, currentUserBalance });
 })
 
 router.put('/', authCheck, async (req, res) => {
@@ -186,9 +224,6 @@ router.get('/bulk', async (req, res) => {
     })
 
     return res.json({ returnVal });
-
-
-
 })
 
 module.exports = router;
